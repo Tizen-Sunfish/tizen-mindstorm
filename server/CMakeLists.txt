@@ -1,4 +1,4 @@
-project(rkf_server CXX)
+project(mindstorm_server CXX)
 
 # Find required modules
 # PKG_CHECK_MODULES: used to check for given modules
