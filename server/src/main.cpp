@@ -165,6 +165,21 @@ int rkf_finalize_bluetooth(void) {
 	return 0;
 }
 
+static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
+	
+	if (dbus_message_is_signal(message,"org.share.linux","Customize")) {
+		ALOGD("Message cutomize received\n");
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+	if (dbus_message_is_signal(message,"org.share.linux","Quit")) {
+		ALOGD("Message quit received\n");
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+	ALOGD("DBUS_HANDLER_RESULT_NOT_YET_HANDLED\n");
+	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+
 int dbus_listen_connection(void) {
 
 	DBusConnection *connection;
