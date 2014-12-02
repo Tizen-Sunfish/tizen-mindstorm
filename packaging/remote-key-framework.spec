@@ -12,6 +12,8 @@ Source1:    remote-key-framework.service
 # Pkgconfig tool helps to find libraries that have already been installed
 BuildRequires:  cmake
 BuildRequires:  libattr-devel
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(capi-network-bluetooth)
 BuildRequires:  pkgconfig(capi-system-info)

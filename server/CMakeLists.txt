@@ -18,6 +18,9 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${rpkgs-dlog_INCLUDE_DIRS}
 	${rpkgs-capi_INCLUDE_DIRS}
+	/usr/include/dbus-1.0
+	/usr/lib/dbus-1.0/include
+	/usr/lib/glib-2.0/include
 	)
 
 # Set sources
@@ -28,6 +31,11 @@ ADD_EXECUTABLE(${PROJECT_NAME}
 
 # Set LDFLAGS
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${rpkgs-dlog_LDFLAGS} ${rpkgs-capi_LDFLAGS} ${rpkgs-glib_LDFLAGS} "-ldl -lrt")
+
+# SET LINKER FLAGS
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} "-ldbus-1" )
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} "-ldbus-glib-1" )
+
 
 # Set CFLAGS
 ADD_DEFINITIONS(-Wall -O3) 

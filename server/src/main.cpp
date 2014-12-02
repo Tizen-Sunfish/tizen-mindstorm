@@ -7,6 +7,9 @@
 #include "common.h"
 #include <dlog.h>
 #include <glib.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib-lowlevel.h>
+
 #include <bluetooth.h>
 
 #undef LOG_TAG
@@ -162,6 +165,30 @@ int rkf_finalize_bluetooth(void) {
 	return 0;
 }
 
+int dbus_listen_connection(void) {
+
+	DBusConnection *connection;
+	DBusError error;
+
+	dbus_error_init(&error);
+
+	connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
+
+	if (dbus_error_is_set(&error)) {
+		ALOGD("Error connecting to the daemon bus: %s",error.message);
+		dbus_error_free(&error);
+		return -1;
+	}
+
+	dbus_bus_add_match (connection, "type='signal',interface='org.share.linux'",NULL);
+	dbus_connection_add_filter (connection, dbus_filter, gMainLoop, NULL);
+
+	/* dbus-glib call */
+	dbus_connection_setup_with_g_main(connection,NULL);
+
+	return 0;
+}
+
 int rkf_listen_connection(void) {
 	// Success to get a socket
 	int ret = bt_socket_listen_and_accept_rfcomm(gSocketFd, 5);
@@ -310,6 +337,9 @@ int main(int argc, char *argv[])
 		ret = -3;
 		goto error_end_with_socket;
 	}
+
+	// Listen connection (dbus)
+	error = dbus_listen_connection();
 
 	// If succeed to accept a connection, start a main loop.
 	rkf_main_loop();
