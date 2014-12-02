@@ -44,9 +44,9 @@ mkdir -p %{buildroot}/usr/share/license
 cp LICENSE %{buildroot}/usr/share/license/%{name}
 
 # install systemd service
-#mkdir -p %{buildroot}%{_libdir}/systemd/system/graphical.target.wants
-#install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/
-#ln -s ../remote-key-framework.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
+mkdir -p %{buildroot}%{_libdir}/systemd/system/graphical.target.wants
+install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/
+ln -s ../tizen-mindstorm.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/tizen-mindstorm.service
 
 ## Postprocess script
 %post 
@@ -55,6 +55,6 @@ cp LICENSE %{buildroot}/usr/share/license/%{name}
 %files
 %manifest tizen-mindstorm.manifest
 %{_bindir}/mindstorm_server
-#%{_libdir}/systemd/system/remote-key-framework.service
-#%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
+%{_libdir}/systemd/system/tizen-mindstorm.service
+%{_libdir}/systemd/system/graphical.target.wants/tizen-mindstorm.service
 /usr/share/license/%{name}

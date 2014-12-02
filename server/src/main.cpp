@@ -284,11 +284,7 @@ int main(int argc, char *argv[])
 	int error, ret = 0;
 	const char default_device_name[] = "Tizen-RK";
 	const char *device_name = NULL;
-
-	ALOGD("Hello World!\n");
-
-
-/*	gMainLoop = g_main_loop_new(NULL, FALSE);
+	gMainLoop = g_main_loop_new(NULL, FALSE);
 	ALOGD("Sever started\n");
 
 	if(argc < 2) {
@@ -326,7 +322,6 @@ error_end_with_socket:
 
 error_end_without_socket:
 	rkf_finalize_bluetooth();
-*/
 	return ret;
 }
 

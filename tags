@@ -1,0 +1,72 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DBG	server/include/common.h	52;"	d
+DBG	server/include/common.h	59;"	d
+DBG	server/include/common.h	64;"	d
+DBG	server/include/common.h	72;"	d
+DBG	server/include/common.h	79;"	d
+DbgPrint	server/include/common.h	44;"	d
+DbgPrint	server/include/common.h	73;"	d
+DbgPrint	server/include/common.h	78;"	d
+ERR	server/include/common.h	50;"	d
+ERR	server/include/common.h	57;"	d
+ERR	server/include/common.h	63;"	d
+ERR	server/include/common.h	69;"	d
+ERR	server/include/common.h	76;"	d
+EXTAPI	server/src/common.cpp	14;"	d	file:
+FILE_LENGTH	server/src/common.cpp	18;"	d	file:
+INFO	server/include/common.h	51;"	d
+INFO	server/include/common.h	58;"	d
+INFO	server/include/common.h	65;"	d
+INFO	server/include/common.h	70;"	d
+INFO	server/include/common.h	80;"	d
+LOG_TAG	server/include/common.h	36;"	d
+LOG_TAG	server/include/common.h	38;"	d
+LOG_TAG	server/src/main.cpp	12;"	d	file:
+LOG_TAG	server/src/main.cpp	13;"	d	file:
+MICROSECONDS	server/include/common.h	27;"	d
+RKF_LOG_DBG	server/include/common.h	/^	RKF_LOG_DBG			= 2,$/;"	e	enum:rkf_priority_type
+RKF_LOG_DLOG	server/include/common.h	/^	RKF_LOG_DLOG			= 3,$/;"	e	enum:rkf_log_type
+RKF_LOG_ERR	server/include/common.h	/^	RKF_LOG_ERR			= 1,$/;"	e	enum:rkf_priority_type
+RKF_LOG_INFO	server/include/common.h	/^	RKF_LOG_INFO		= 3,$/;"	e	enum:rkf_priority_type
+RKF_LOG_PRINT_FILE	server/include/common.h	/^	RKF_LOG_PRINT_FILE		= 1,$/;"	e	enum:rkf_log_type
+RKF_LOG_SYSLOG	server/include/common.h	/^	RKF_LOG_SYSLOG			= 2,$/;"	e	enum:rkf_log_type
+RKF_SERVER_MSG_LOG_FILE	server/src/common.cpp	17;"	d	file:
+_COMMON_H_	server/include/common.h	3;"	d
+__MODULE__	server/include/common.h	31;"	d
+gBtState	server/src/main.cpp	/^static bt_adapter_state_e gBtState = BT_ADAPTER_DISABLED;$/;"	v	file:
+gMainLoop	server/src/main.cpp	/^static GMainLoop* gMainLoop = NULL;$/;"	v	file:
+gReceiveCount	server/src/main.cpp	/^int gReceiveCount = 0;$/;"	v
+gSocketFd	server/src/main.cpp	/^static int gSocketFd = -1;$/;"	v	file:
+gVisibilityMode	server/src/main.cpp	/^static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE_NON_DISCOVERABLE;$/;"	v	file:
+main	server/src/main.cpp	/^int main(int argc, char *argv[])$/;"	f
+ret_if	server/include/common.h	123;"	d
+ret_if	server/include/common.h	90;"	d
+retm_if	server/include/common.h	102;"	d
+retm_if	server/include/common.h	133;"	d
+retv_if	server/include/common.h	128;"	d
+retv_if	server/include/common.h	96;"	d
+retvm_if	server/include/common.h	109;"	d
+retvm_if	server/include/common.h	139;"	d
+rkf_debug_file_buf	server/src/common.cpp	/^static char rkf_debug_file_buf[FILE_LENGTH];$/;"	v	file:
+rkf_debug_file_fd	server/src/common.cpp	/^static int rkf_debug_file_fd;$/;"	v	file:
+rkf_finalize_bluetooth	server/src/main.cpp	/^int rkf_finalize_bluetooth(void) {$/;"	f
+rkf_finalize_bluetooth_socket	server/src/main.cpp	/^int rkf_finalize_bluetooth_socket(void) {$/;"	f
+rkf_initialize_bluetooth	server/src/main.cpp	/^int rkf_initialize_bluetooth(const char *device_name) {$/;"	f
+rkf_listen_connection	server/src/main.cpp	/^int rkf_listen_connection(void) {$/;"	f
+rkf_log	server/src/common.cpp	/^EXTAPI void rkf_log(int type , int priority , const char *tag , const char *fmt , ...)$/;"	f
+rkf_log_type	server/include/common.h	/^enum rkf_log_type {$/;"	g
+rkf_main_loop	server/src/main.cpp	/^void rkf_main_loop(void) {$/;"	f
+rkf_priority_type	server/include/common.h	/^enum rkf_priority_type {$/;"	g
+rkf_received_data_cb	server/src/main.cpp	/^void rkf_received_data_cb(bt_socket_received_data_s *data, void *user_data) {$/;"	f
+rkf_send_data	server/src/main.cpp	/^int rkf_send_data(const char *data, int length) {$/;"	f
+rkf_socket_connection_state_changed_cb	server/src/main.cpp	/^void rkf_socket_connection_state_changed_cb(int result, bt_socket_connection_state_e connection_state_event, bt_socket_connection_s *connection, void *user_data) {$/;"	f
+rkf_state_changed_cb	server/src/main.cpp	/^void rkf_state_changed_cb(int result, bt_adapter_state_e adapter_state, void *user_data) {$/;"	f
+timeout_func_cb	server/src/main.cpp	/^gboolean timeout_func_cb(gpointer data)$/;"	f
+uuid	server/src/main.cpp	/^static const char uuid[] = "00001101-0000-1000-8000-00805F9B34FB";$/;"	v	file:
+warn_if	server/include/common.h	118;"	d
+warn_if	server/include/common.h	85;"	d
