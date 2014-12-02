@@ -1,12 +1,12 @@
 ## Basic Descriptions of this package
-Name:       tizen-mindstorm
-Summary:    Tizen Mindstorm
-Version:		0.1
+Name:       remote-key-framework
+Summary:    Remote key framework
+Version:		1.2
 Release:    1
 Group:      Framework/system
 License:    Apache License, Version 2.0
 Source0:    %{name}-%{version}.tar.gz
-Source1:    tizen-mindstorm.service
+Source1:    remote-key-framework.service
 
 # Required packages
 # Pkgconfig tool helps to find libraries that have already been installed
@@ -46,15 +46,15 @@ cp LICENSE %{buildroot}/usr/share/license/%{name}
 # install systemd service
 mkdir -p %{buildroot}%{_libdir}/systemd/system/graphical.target.wants
 install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/
-ln -s ../tizen-mindstorm.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/tizen-mindstorm.service
+ln -s ../remote-key-framework.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
 
 ## Postprocess script
 %post 
 
 ## Binary Package: File list
 %files
-%manifest tizen-mindstorm.manifest
-%{_bindir}/mindstorm_server
-%{_libdir}/systemd/system/tizen-mindstorm.service
-%{_libdir}/systemd/system/graphical.target.wants/tizen-mindstorm.service
+%manifest remote-key-framework.manifest
+%{_bindir}/rkf_server
+%{_libdir}/systemd/system/remote-key-framework.service
+%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
 /usr/share/license/%{name}
