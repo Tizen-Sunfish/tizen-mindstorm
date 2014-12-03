@@ -167,11 +167,11 @@ int rkf_finalize_bluetooth(void) {
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 	
-	if (dbus_message_is_signal(message,"org.share.linux","Customize")) {
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","Config")) {
 		ALOGD("Message cutomize received\n");
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
-	if (dbus_message_is_signal(message,"org.share.linux","Quit")) {
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
 		ALOGD("Message quit received\n");
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
@@ -187,7 +187,7 @@ int dbus_listen_connection(void) {
 
 	dbus_error_init(&error);
 
-	connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
+	connection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 
 	if (dbus_error_is_set(&error)) {
 		ALOGD("Error connecting to the daemon bus: %s",error.message);
@@ -195,7 +195,7 @@ int dbus_listen_connection(void) {
 		return -1;
 	}
 
-	dbus_bus_add_match (connection, "type='signal',interface='org.share.linux'",NULL);
+	dbus_bus_add_match (connection, "path='/User/Mindstorm/API',type='signal',interface='User.Mindstorm.API'",NULL);
 	dbus_connection_add_filter (connection, dbus_filter, gMainLoop, NULL);
 
 	/* dbus-glib call */
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 	const char *device_name = NULL;
 	gMainLoop = g_main_loop_new(NULL, FALSE);
 	ALOGD("Sever started\n");
-
+/*
 	if(argc < 2) {
 		char errMsg[] = "No bluetooth device name, so its name is set as default.";
 		printf("%s\n", errMsg);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 		ret = -3;
 		goto error_end_with_socket;
 	}
-
+*/
 	// Listen connection (dbus)
 	error = dbus_listen_connection();
 
