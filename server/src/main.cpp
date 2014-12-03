@@ -165,10 +165,33 @@ int rkf_finalize_bluetooth(void) {
 	return 0;
 }
 
+int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {
+	char data[28] = { 0x0c, 0x00, (char) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,
+				0x0c, 0x00, (char) 0x80, 0x04, 0x01, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
+
+		//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
+
+	data[5] = l;
+	data[19] = r;
+	if (speedReg) {
+		data[7] |= 0x01;
+		data[21] |= 0x01;
+	}
+	if (motorSync) {
+		data[7] |= 0x02;
+		data[21] |= 0x02;
+	}
+	rkf_send_data(data, 28);
+}
+
+
+
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 	
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Config")) {
 		ALOGD("Message cutomize received\n");
+		mindstorm_motors(30, 30, true, true);
+
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
@@ -234,7 +257,7 @@ int rkf_listen_connection(void) {
 int rkf_send_data(const char *data, int length) {
 	int ret = bt_socket_send_data(gSocketFd, data, length);
 	if(ret != BT_ERROR_NONE) {
-		ALOGD("RemoteKeyFW: unknown error is occured in rkf_serror_end_data()");
+		ALOGD("RemoteKeyFW: unknown error(%d) is occured in rkf_serror_end_data()", ret);
 		return -1;
 	} else {
 		return 0;
@@ -328,7 +351,7 @@ int main(int argc, char *argv[])
 	const char *device_name = NULL;
 	gMainLoop = g_main_loop_new(NULL, FALSE);
 	ALOGD("Sever started\n");
-/*
+
 	if(argc < 2) {
 		char errMsg[] = "No bluetooth device name, so its name is set as default.";
 		printf("%s\n", errMsg);
@@ -352,7 +375,7 @@ int main(int argc, char *argv[])
 		ret = -3;
 		goto error_end_with_socket;
 	}
-*/
+
 	// Listen connection (dbus)
 	error = dbus_listen_connection();
 

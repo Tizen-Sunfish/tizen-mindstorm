@@ -46,9 +46,9 @@ mkdir -p %{buildroot}/usr/share/license
 cp LICENSE %{buildroot}/usr/share/license/%{name}
 
 # install systemd service
-mkdir -p %{buildroot}%{_libdir}/systemd/system/graphical.target.wants
-install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/
-ln -s ../remote-key-framework.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
+#mkdir -p %{buildroot}%{_libdir}/systemd/system/graphical.target.wants
+#install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/
+#ln -s ../remote-key-framework.service %{buildroot}%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
 
 ## Postprocess script
 %post 
@@ -57,6 +57,6 @@ ln -s ../remote-key-framework.service %{buildroot}%{_libdir}/systemd/system/grap
 %files
 %manifest remote-key-framework.manifest
 %{_bindir}/rkf_server
-%{_libdir}/systemd/system/remote-key-framework.service
-%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
+#%{_libdir}/systemd/system/remote-key-framework.service
+#%{_libdir}/systemd/system/graphical.target.wants/remote-key-framework.service
 /usr/share/license/%{name}
