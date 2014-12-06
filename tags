@@ -40,9 +40,12 @@ _COMMON_H_	server/include/common.h	3;"	d
 __MODULE__	server/include/common.h	31;"	d
 bonding_state	server/src/main.cpp	/^static int bonding_state = BT_ERROR_OPERATION_FAILED;$/;"	v	file:
 bt_adapter_bonded_device_impl	server/src/main.cpp	/^bool bt_adapter_bonded_device_impl(bt_device_info_s *device_info, void *user_data)$/;"	f
+bt_adapter_device_discovery_state_changed_impl	server/src/main.cpp	/^void bt_adapter_device_discovery_state_changed_impl(int result, bt_adapter_device_discovery_state_e discovery_state,$/;"	f
 bt_address	server/src/main.cpp	/^static char* bt_address = NULL;$/;"	v	file:
 bt_device_bond_created_impl	server/src/main.cpp	/^void bt_device_bond_created_impl(int result, bt_device_info_s *device_info, void *user_data)$/;"	f
 bt_device_service_searched_impl	server/src/main.cpp	/^void bt_device_service_searched_impl(int result, bt_device_sdp_info_s* sdp_info, void* user_data)$/;"	f
+bt_socket_connection_state_changed_impl	server/src/main.cpp	/^void bt_socket_connection_state_changed_impl(int result, bt_socket_connection_state_e connection_state,$/;"	f
+bt_socket_data_received_impl	server/src/main.cpp	/^void bt_socket_data_received_impl(bt_socket_received_data_s *data, void *user_data)$/;"	f
 dbus_filter	server/src/main.cpp	/^static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {$/;"	f	file:
 dbus_listen_connection	server/src/main.cpp	/^int dbus_listen_connection(void) {$/;"	f
 gBtState	server/src/main.cpp	/^static bt_adapter_state_e gBtState = BT_ADAPTER_DISABLED;$/;"	v	file:
@@ -51,7 +54,7 @@ gReceiveCount	server/src/main.cpp	/^int gReceiveCount = 0;$/;"	v
 gSocketFd	server/src/main.cpp	/^static int gSocketFd = -1;$/;"	v	file:
 gVisibilityMode	server/src/main.cpp	/^static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE_NON_DISCOVERABLE;$/;"	v	file:
 main	server/src/main.cpp	/^int main(int argc, char *argv[])$/;"	f
-mindstorm_motors	server/src/main.cpp	/^int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {$/;"	f
+mindstorm_motor1	server/src/main.cpp	/^int mindstorm_motor1(int type, int power) {$/;"	f
 ret_if	server/include/common.h	123;"	d
 ret_if	server/include/common.h	90;"	d
 retm_if	server/include/common.h	102;"	d

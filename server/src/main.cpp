@@ -518,25 +518,14 @@ int rkf_finalize_bluetooth(void) {
 	bt_deinitialize();
 	return 0;
 }
-static char gdata[15] = { 0x0c, 0x00, (char) 0x00, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,};
 
-int mindstorm_motor(char power) {
+int mindstorm_motor1(int type, int power) {
+	char data[15] = { 0x0c, 0x00, (char) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,};
 
-	//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
-
-	gdata[5] = power;
-/*	
-if (speedReg) {
-			data[7] |= 0x01;
-			data[21] |= 0x01;
-	}
-	if (motorSync) {
-			data[7] |= 0x02;
-			data[21] |= 0x02;
-	}
-*/
-
-	rkf_send_data(gdata, 14);
+	data[4] = (char) type;	
+	data[5] = (char) power;
+	
+	rkf_send_data(data, 14);
 }
 /*
 int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {
@@ -561,39 +550,21 @@ int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {
 
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
-	
 
-	if (dbus_message_is_signal(message,"User.Mindstorm.API","Config")) {
-		ALOGD("Message cutomize received\n");
-		{
-			int temp_power = 0;
-			char motor_power = (char)temp_power;
-			mindstorm_motor(motor_power);
-//			mindstorm_motors(motor_power, motor_power, false, false);
-			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
-		}
-		{
-			int temp_power = 30;
-			char motor_power = (char)temp_power;
-			mindstorm_motor(motor_power);
-//			mindstorm_motors(motor_power, motor_power, false, false);
-			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
-		}
-		{
-			int temp_power = 70;
-			char motor_power = (char)temp_power;
-			mindstorm_motor(motor_power);
-//			mindstorm_motors(motor_power, motor_power, false, false);
-			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
-		}
-		{
-			int temp_power = 100;
-			char motor_power = (char)temp_power;
-			mindstorm_motor(motor_power);
-//			mindstorm_motors(motor_power, motor_power, false, false);
-			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
-		}
+	DBusError error = {0};
+	dbus_error_init(&error);
 
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","Motor")) {
+		int motor_type = 0;
+		int motor_power = 0;
+		ALOGD("Message motor received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INT32, &motor_type,
+			DBUS_TYPE_INT32, &motor_power,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_motor1(motor_type, motor_power);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
@@ -657,14 +628,7 @@ int rkf_listen_connection(void) {
 }
 
 int rkf_send_data(const char *data, int length) {
-	int ret = bt_socket_send_data(gSocketFd, gdata, length);
-
-	char data2[20]; 
-
-	g_strlcpy(data2, gdata, length);
-
-	for (int i=0; i<length; i++)
-		ALOGD("g_strlcpy : %x", data2[i]);
+	int ret = bt_socket_send_data(gSocketFd, data, length);
 
 	if(ret != BT_ERROR_NONE) {
 		ALOGD("RemoteKeyFW: unknown error(%d) is occured in rkf_serror_end_data()", ret);
