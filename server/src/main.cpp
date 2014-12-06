@@ -163,9 +163,17 @@ void bt_socket_data_received_impl(bt_socket_received_data_s *data, void *user_da
 {
     if(gSocketFd == data->socket_fd)
     {
-        if(data->data_size > 0)
+		char* message = (char*) data->data;
+        if(data->data_size > 2)
         {
-           ALOGI("[%s] Data received", __FUNCTION__);
+			ALOGI("Data received");
+            ALOGI("[%s] Data received(%d size)", __FUNCTION__, data->data_size);
+			ALOGI("Len : %x\n", message[0]);
+			ALOGI("id? : %x\n", message[1]);
+			ALOGI("Data1 : %x\n", message[2]);
+			ALOGI("Data2 : %x\n", message[3]);
+			ALOGI("Data3 : %x\n", message[4]);
+
 /*
             if(!strncmp(data->data, quit_command, data->data_size))
             {
@@ -510,34 +518,82 @@ int rkf_finalize_bluetooth(void) {
 	bt_deinitialize();
 	return 0;
 }
+static char gdata[15] = { 0x0c, 0x00, (char) 0x00, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,};
 
+int mindstorm_motor(char power) {
+
+	//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
+
+	gdata[5] = power;
+/*	
+if (speedReg) {
+			data[7] |= 0x01;
+			data[21] |= 0x01;
+	}
+	if (motorSync) {
+			data[7] |= 0x02;
+			data[21] |= 0x02;
+	}
+*/
+
+	rkf_send_data(gdata, 14);
+}
+/*
 int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {
 	char data[28] = { 0x0c, 0x00, (char) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,
-				0x0c, 0x00, (char) 0x80, 0x04, 0x01, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
+			0x0c, 0x00, (char) 0x80, 0x04, 0x01, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
 
-		//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
+	//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
 
 	data[5] = l;
 	data[19] = r;
 	if (speedReg) {
-		data[7] |= 0x01;
-		data[21] |= 0x01;
+			data[7] |= 0x01;
+			data[21] |= 0x01;
 	}
 	if (motorSync) {
-		data[7] |= 0x02;
-		data[21] |= 0x02;
+			data[7] |= 0x02;
+			data[21] |= 0x02;
 	}
 	rkf_send_data(data, 28);
 }
-
+*/
 
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 	
+
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Config")) {
 		ALOGD("Message cutomize received\n");
-		mindstorm_motors(30, 30, false, false);
-		ALOGD("ESLAB mindstorm: 30/30\n");
+		{
+			int temp_power = 0;
+			char motor_power = (char)temp_power;
+			mindstorm_motor(motor_power);
+//			mindstorm_motors(motor_power, motor_power, false, false);
+			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
+		}
+		{
+			int temp_power = 30;
+			char motor_power = (char)temp_power;
+			mindstorm_motor(motor_power);
+//			mindstorm_motors(motor_power, motor_power, false, false);
+			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
+		}
+		{
+			int temp_power = 70;
+			char motor_power = (char)temp_power;
+			mindstorm_motor(motor_power);
+//			mindstorm_motors(motor_power, motor_power, false, false);
+			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
+		}
+		{
+			int temp_power = 100;
+			char motor_power = (char)temp_power;
+			mindstorm_motor(motor_power);
+//			mindstorm_motors(motor_power, motor_power, false, false);
+			ALOGD("ESLAB mindstorm: %d/%d\n", motor_power, motor_power);
+		}
+
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
@@ -601,11 +657,20 @@ int rkf_listen_connection(void) {
 }
 
 int rkf_send_data(const char *data, int length) {
-	int ret = bt_socket_send_data(gSocketFd, data, length);
+	int ret = bt_socket_send_data(gSocketFd, gdata, length);
+
+	char data2[20]; 
+
+	g_strlcpy(data2, gdata, length);
+
+	for (int i=0; i<length; i++)
+		ALOGD("g_strlcpy : %x", data2[i]);
+
 	if(ret != BT_ERROR_NONE) {
 		ALOGD("RemoteKeyFW: unknown error(%d) is occured in rkf_serror_end_data()", ret);
 		return -1;
 	} else {
+		ALOGD("Send Success!");
 		return 0;
 	}
 }
