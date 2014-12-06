@@ -527,26 +527,11 @@ int mindstorm_motor1(int type, int power) {
 	
 	rkf_send_data(data, 14);
 }
-/*
-int mindstorm_motors(char l, char r, bool speedReg, bool motorSync) {
-	char data[28] = { 0x0c, 0x00, (char) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00,
-			0x0c, 0x00, (char) 0x80, 0x04, 0x01, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
 
-	//Log.i("NXT", "motors: " + Byte.toString(l) + ", " + Byte.toString(r));
-
-	data[5] = l;
-	data[19] = r;
-	if (speedReg) {
-			data[7] |= 0x01;
-			data[21] |= 0x01;
-	}
-	if (motorSync) {
-			data[7] |= 0x02;
-			data[21] |= 0x02;
-	}
-	rkf_send_data(data, 28);
+int mindstorm_beep(void) {
+	char data[] = {0x06, 0x00, 0x80, 0x03, 0x0B, 0x02, 0xF4, 0x01};
+	rkf_send_data(data, 8);
 }
-*/
 
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
@@ -567,6 +552,17 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 		mindstorm_motor1(motor_type, motor_power);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
+
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","Beep")) {
+		ALOGD("Message beep received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_beep();
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
 		ALOGD("Message quit received\n");
 		return DBUS_HANDLER_RESULT_HANDLED;
