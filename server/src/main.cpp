@@ -20,6 +20,7 @@ static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE
 static int gSocketFd = -1;
 static char* bt_address = NULL;
 static char* server_name = "SIOR";
+static int gSonarReadBytes = 0;			// For sonar (LSGETSTATUS return value)
 static bt_adapter_state_e gBtState = BT_ADAPTER_DISABLED;
 static int bonding_state = BT_ERROR_OPERATION_FAILED;
 static const char uuid[] = "00001101-0000-1000-8000-00805F9B34FB";
@@ -167,23 +168,18 @@ void bt_socket_data_received_impl(bt_socket_received_data_s *data, void *user_da
         if(data->data_size > 2)
         {
 			ALOGI("Data received");
-            ALOGI("[%s] Data received(%d size)", __FUNCTION__, data->data_size);
-			ALOGI("Len : %x\n", message[0]);
-			ALOGI("id? : %x\n", message[1]);
-			ALOGI("Data1 : %x\n", message[2]);
-			ALOGI("Data2 : %x\n", message[3]);
-			ALOGI("Data3 : %x\n", message[4]);
-
-/*
-            if(!strncmp(data->data, quit_command, data->data_size))
-            {
-                ALOGI("[%s] Callback: Quit command.", __FUNCTION__);
-                if(g_mainloop)
-                {
-                    g_main_loop_quit(gMainloop);
-                }
-            }
-*/
+		//	ALOGI("Len1 : %x\n", message[0]);
+		//	ALOGI("Len2 : %x\n", message[1]);
+			ALOGI("Data1 : %x", message[2]);
+			ALOGI("Data2 : %x", message[3]);
+			ALOGI("Data3 : %x", message[4]);
+			if (message[3] == 0x0E) {
+				ALOGI("Read LSGETSTATUS : %x", message[5]);
+				gSonarReadBytes = message[5];
+			}
+			else if (message[3] == 0x10) {
+				ALOGI("Read Data : %d", (int)message[5]);
+			} 
         }
         else
         {
@@ -560,6 +556,37 @@ int mindstorm_color(int color) {
 	rkf_send_data(data, 7);
 }
 
+int mindstorm_sonar_set(int port) {
+	char data[7] = { 0x05, 0x00, 0x00, 0x05, 0x03, 0x0b, 0x00 };
+
+	data[4] = (char)port;
+	
+	rkf_send_data(data, 7);
+}
+
+int mindstorm_sonar_get(int port) {
+	char data1[10] = { 0x08, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x03, 0x00, 0x02, 0x41, 0x02 };
+	data1[4] = (char)port;
+	rkf_send_data(data1, 10);
+
+	gSonarReadBytes = 0;
+	do {
+		char data2[9] = { 0x07, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x02, 0x01, 0x02, 0x42};
+		data2[4] = (char)port;
+		rkf_send_data(data2, 9);
+			
+		char data3[5] = { 0x03, 0x00, 0x00, 0x0E, 0x03/*port*/};
+		data3[4] = (char)port;
+		rkf_send_data(data3, 5);
+	
+	} while (gSonarReadBytes < 1);
+
+	char data4[5] = { 0x03, 0x00, 0x00, 0x10, 0x03/*port*/};
+	data4[4] = (char)port;
+	rkf_send_data(data4, 5);
+}
+
+
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 
@@ -603,6 +630,18 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
+
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","SonarSet")) {
+		int port;	
+		ALOGD("Message color received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INT32, &port,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_sonar_set(port);
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
 
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
 		ALOGD("Message quit received\n");

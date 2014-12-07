@@ -54,7 +54,10 @@ gReceiveCount	server/src/main.cpp	/^int gReceiveCount = 0;$/;"	v
 gSocketFd	server/src/main.cpp	/^static int gSocketFd = -1;$/;"	v	file:
 gVisibilityMode	server/src/main.cpp	/^static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE_NON_DISCOVERABLE;$/;"	v	file:
 main	server/src/main.cpp	/^int main(int argc, char *argv[])$/;"	f
+mindstorm_beep	server/src/main.cpp	/^int mindstorm_beep(void) {$/;"	f
+mindstorm_color	server/src/main.cpp	/^int mindstorm_color(int color) {$/;"	f
 mindstorm_motor1	server/src/main.cpp	/^int mindstorm_motor1(int type, int power) {$/;"	f
+mindstorm_set_sornar	server/src/main.cpp	/^int mindstorm_set_sornar() {$/;"	f
 ret_if	server/include/common.h	123;"	d
 ret_if	server/include/common.h	90;"	d
 retm_if	server/include/common.h	102;"	d
