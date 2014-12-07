@@ -533,6 +533,33 @@ int mindstorm_beep(void) {
 	rkf_send_data(data, 8);
 }
 
+int mindstorm_color(int color) {
+	char data[7] = { 0x05, 0x00, 0x80, 0x05, 0x02, 0x0D, 0x80 };
+	char type;
+
+	switch(color){
+		case 0:// All color
+			type = 0x0D;
+			break;
+		case 1:// Red
+			type = 0x0E;
+			break;
+		case 2:// Green
+			type = 0x0F;
+			break;
+		case 3:// Blue
+			type = 0x10;
+			break;
+		case 4:// Light off
+			type = 0x11;
+			break;
+	}
+
+	data[5] = type;
+	
+	rkf_send_data(data, 7);
+}
+
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 
@@ -562,6 +589,20 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 		mindstorm_beep();
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
+
+
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","Color")) {
+		int color;	
+		ALOGD("Message color received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INT32, &color,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_color(color);
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
 
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
 		ALOGD("Message quit received\n");
