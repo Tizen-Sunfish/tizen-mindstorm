@@ -20,7 +20,6 @@ static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE
 static int gSocketFd = -1;
 static char* bt_address = NULL;
 static char* server_name = "SIOR";
-static int gSonarReadBytes = 0;			// For sonar (LSGETSTATUS return value)
 static bt_adapter_state_e gBtState = BT_ADAPTER_DISABLED;
 static int bonding_state = BT_ERROR_OPERATION_FAILED;
 static const char uuid[] = "00001101-0000-1000-8000-00805F9B34FB";
@@ -38,10 +37,6 @@ void rkf_received_data_cb(bt_socket_received_data_s *, void *);
 void rkf_socket_connection_state_changed_cb(int, bt_socket_connection_state_e, bt_socket_connection_s *, void *);
 void rkf_state_changed_cb(int, bt_adapter_state_e, void *);
 gboolean timeout_func_cb(gpointer);
-
-
-
-
 
 void bt_device_bond_created_impl(int result, bt_device_info_s *device_info, void *user_data)
 {
@@ -174,9 +169,10 @@ void bt_socket_data_received_impl(bt_socket_received_data_s *data, void *user_da
 			ALOGI("Data2 : %x", message[3]);
 			ALOGI("Data3 : %x", message[4]);
 			if (message[3] == 0x0E) {
+				int sonarReadBytes
 				ALOGI("Read LSGETSTATUS : %x", message[5]);
-				gSonarReadBytes = message[5];
-				if (gSonarReadBytes >= 1) {
+				sonarReadBytes = message[5];
+				if (sonarReadBytes >= 1) {
 					char data4[5] = { 0x03, 0x00, 0x00, 0x10, 0x03/*port*/};
 					rkf_send_data(data4, 5);
 				}
@@ -451,74 +447,7 @@ int rkf_initialize_bluetooth(const char *device_name) {
         return -1;
     }
 
-	// Connecting socket as a server
-/*
-	ret = bt_socket_create_rfcomm(uuid, &gSocketFd);
-	if(ret != BT_ERROR_NONE) {
-		ALOGD("Unknown exception is occured in bt_socket_create_rfcomm(): %x", ret);
-		return -12;
-	}
 
-	ret = bt_socket_set_connection_state_changed_cb(rkf_socket_connection_state_changed_cb, NULL);
-	if(ret != BT_ERROR_NONE) {
-		ALOGD("Unknown exception is occured in bt_socket_set_connection_state_changed_cb(): %x", ret);
-		return -13;
-	}
-
-	ret = bt_socket_set_data_received_cb(rkf_received_data_cb, NULL);
-	if(ret != BT_ERROR_NONE) {
-		ALOGD("Unknown exception is occured in bt_socket_set_data_received_cb(): %x", ret);
-		return -14;
-	}
-
-	if(bonding_state == BT_ERROR_SERVICE_SEARCH_FAILED) {
-        if(bt_device_set_service_searched_cb(bt_device_service_searched_impl, NULL) != BT_ERROR_NONE)
-        {
-            ALOGE("[%s] bt_device_set_service_searched_cb() failed.", __FUNCTION__);
-            return -15;
-        }
-
-        if(bt_device_start_service_search(bt_address) == BT_ERROR_NONE) {
-            ALOGI("[%s] bt_device_service_searched_cb will be called.", __FUNCTION__);
-            g_main_loop_run(gMainLoop);
-        }
-        else {
-            ALOGE("[%s] bt_device_start_service_search() failed.", __FUNCTION__);
-            return -16;
-        }
-    }
-	else if(bonding_state != BT_ERROR_NONE) {
-        if(bt_device_set_bond_created_cb(bt_device_bond_created_impl, NULL) != BT_ERROR_NONE)
-        {
-            ALOGE("[%s] bt_device_set_bond_created_cb() failed.", __FUNCTION__);
-            return -17;
-        }
-
-        if(bt_device_create_bond(bt_address) == BT_ERROR_NONE) {
-            ALOGI("[%s] bt_device_bond_created_cb will be called.", __FUNCTION__);
-			return 0;
-//            g_main_loop_run(g_mainloop);
-        }
-        else {
-            ALOGE("[%s] bt_device_create_bond() failed.", __FUNCTION__);
-            return -18;
-        }
-    }
-*/	
-	return 0;
-}
-
-int rkf_finalize_bluetooth_socket(void) {
-	int ret;
-	sleep(5); // Wait for completing delivery
-	ret = bt_socket_destroy_rfcomm(gSocketFd);
-	if(ret != BT_ERROR_NONE)
-	{
-		ALOGD("Unknown exception is occured in bt_socket_destory_rfcomm(): %x", ret);
-		return -1;
-	}
-
-	bt_deinitialize();
 	return 0;
 }
 
@@ -568,25 +497,20 @@ int mindstorm_color(int color) {
 	rkf_send_data(data, 7);
 }
 
-int mindstorm_sonar_set(int port) {
+int mindstorm_sonar_set() {
 	char data[7] = { 0x05, 0x00, 0x00, 0x05, 0x03, 0x0b, 0x00 };
-
-	data[4] = (char)port;
 	
 	rkf_send_data(data, 7);
 }
 
-int mindstorm_sonar_read(int port) {
+int mindstorm_sonar_read() {
 	char data1[10] = { 0x08, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x03, 0x00, 0x02, 0x41, 0x02 };
-	data1[4] = (char)port;
 	rkf_send_data(data1, 10);
 
 	char data2[9] = { 0x07, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x02, 0x01, 0x02, 0x42};
-	data2[4] = (char)port;
 	rkf_send_data(data2, 9);
 			
 	char data3[5] = { 0x03, 0x00, 0x00, 0x0E, 0x03/*port*/};
-	data3[4] = (char)port;
 	rkf_send_data(data3, 5);
 }
 
@@ -634,33 +558,25 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 
 
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","SonarSet")) {
-		int port;	
 		ALOGD("Message setting sonar received\n");
 			
 		dbus_message_get_args(message, &error,
-			DBUS_TYPE_INT32, &port,
 			DBUS_TYPE_INVALID);	
 
-		mindstorm_sonar_set(port);
+		mindstorm_sonar_set();
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","SonarRead")) {
-		int port;	
 		ALOGD("Message read sonar received\n");
 			
 		dbus_message_get_args(message, &error,
-			DBUS_TYPE_INT32, &port,
 			DBUS_TYPE_INVALID);	
 
-		mindstorm_sonar_read(port);
+		mindstorm_sonar_read();
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
-	if (dbus_message_is_signal(message,"User.Mindstorm.API","Quit")) {
-		ALOGD("Message quit received\n");
-		return DBUS_HANDLER_RESULT_HANDLED;
-	}
 	ALOGD("DBUS_HANDLER_RESULT_NOT_YET_HANDLED\n");
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
@@ -688,33 +604,6 @@ int dbus_listen_connection(void) {
 	dbus_connection_setup_with_g_main(connection,NULL);
 
 	return 0;
-}
-
-int rkf_listen_connection(void) {
-	// Success to get a socket
-	int ret = bt_socket_listen_and_accept_rfcomm(gSocketFd, 5);
-	switch(ret) {
-		case BT_ERROR_NONE:
-			{
-				// Success to listen and accept a connection from client
-				ALOGD("listen successful");
-				return 0;
-			}
-			break;
-		case BT_ERROR_INVALID_PARAMETER:
-			{
-				// Invalid parameter exception
-				ALOGD("Invalid parameter exception is occured in bt_socket_listen_and_accept_rfcomm()");
-				return -1;
-			}
-			break;
-		default:
-			{
-				// Unknown exception
-				ALOGD("Unknown exception is occured in bt_socket_listen_and_accept_rfcomm(): %x", ret);
-				return -2;
-			}
-	}
 }
 
 int rkf_send_data(const char *data, int length) {
@@ -819,16 +708,6 @@ int main(int argc, char *argv[])
 	error = dbus_listen_connection();
 
 	ALOGD("Sever started\n");
-/*
-	if(argc < 2) {
-		char errMsg[] = "No bluetooth device name, so its name is set as default.";
-		printf("%s\n", errMsg);
-		ALOGW("%s\n", errMsg);
-		device_name = default_device_name;
-	} else {
-		device_name = argv[1];
-	}
-*/
 	// Initialize bluetooth
 	error = rkf_initialize_bluetooth(device_name);
 	if(error != 0) {
@@ -836,24 +715,6 @@ int main(int argc, char *argv[])
 		goto error_end_without_socket;
 	}
 	ALOGD("succeed in rkf_initialize_bluetooth()\n");
-
-	// Listen connection
-/*
-	error = rkf_listen_connection();
-	if(error != 0) {
-		ret = -3;
-		goto error_end_with_socket;
-	}
-*/
-
-	// If succeed to accept a connection, start a main loop.
-//	rkf_main_loop();
-
-//	ALOGI("Server is terminated successfully\n");
-
-error_end_with_socket:
-	// Finalized bluetooth
-//	rkf_finalize_bluetooth_socket();
 
 error_end_without_socket:
 	rkf_finalize_bluetooth();
