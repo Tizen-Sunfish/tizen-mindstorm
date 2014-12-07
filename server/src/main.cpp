@@ -13,7 +13,7 @@
 #include <bluetooth.h>
 
 #undef LOG_TAG
-#define LOG_TAG "REMOTE_KEY_FW"
+#define LOG_TAG "MINDSTORM_SERVICE"
 
 static GMainLoop* gMainLoop = NULL;
 static bt_adapter_visibility_mode_e gVisibilityMode = BT_ADAPTER_VISIBILITY_MODE_NON_DISCOVERABLE;
@@ -45,7 +45,7 @@ void bt_device_bond_created_impl(int result, bt_device_info_s *device_info, void
         bonding_state = result;
         if(result == BT_ERROR_NONE)
         {
-            ALOGI("[%s] Callback: A bond with chat_server is created.", __FUNCTION__);
+            ALOGI("[%s] Callback: A bond with mindstorm is created.", __FUNCTION__);
             LOGI("[%s] Callback: The number of service - %d.", __FUNCTION__, device_info->service_count);
 
             int i = 0;
@@ -131,8 +131,7 @@ void bt_adapter_device_discovery_state_changed_impl(int result, bt_adapter_devic
     {
         if(discovery_info->remote_address != NULL && !strcmp(discovery_info->remote_name, server_name))
         {
-            ALOGI("[%s] Callback: chat_server is found.", __FUNCTION__);
-            ALOGI("[%s] Callback: Address of chat_server - %s.", __FUNCTION__, discovery_info->remote_address);
+            ALOGI("[%s] Callback: mindstorm is found.", __FUNCTION__);
             ALOGI("[%s] Callback: Device major class - %d.", __FUNCTION__, discovery_info->bt_class.major_device_class);
             ALOGI("[%s] Callback: Device minor class - %d.", __FUNCTION__, discovery_info->bt_class.minor_device_class);
             ALOGI("[%s] Callback: Service major class - %d.", __FUNCTION__, discovery_info->bt_class.major_service_class_mask);
@@ -207,10 +206,10 @@ bool bt_adapter_bonded_device_impl(bt_device_info_s *device_info, void *user_dat
     {
         if(device_info->remote_name != NULL && !strcmp(device_info->remote_name, (char*)user_data))
         {
-            ALOGI("[%s] Callback: chat_server is found in bonded list.", __FUNCTION__);
+            ALOGI("[%s] Callback: mindstorm is found in bonded list.", __FUNCTION__);
             if( device_info->remote_address != NULL )
             {
-                ALOGI("[%s] Callback: Address of chat_server - %s.", __FUNCTION__, device_info->remote_address);
+                ALOGI("[%s] Callback: Address of mindstorm - %s.", __FUNCTION__, device_info->remote_address);
                 bt_address = strdup(device_info->remote_address);
                 ALOGI("[%s] Callback: The number of service_count - %d.", __FUNCTION__, device_info->service_count);
                 if(device_info->service_count <= 0)
@@ -231,7 +230,7 @@ bool bt_adapter_bonded_device_impl(bt_device_info_s *device_info, void *user_dat
             }
             else
             {
-                ALOGE("[%s] Callback: Address of chat_server is NULL.", __FUNCTION__);
+                ALOGE("[%s] Callback: Address of mindstorm is NULL.", __FUNCTION__);
             }
 
             return false;
@@ -248,7 +247,7 @@ void bt_device_service_searched_impl(int result, bt_device_sdp_info_s* sdp_info,
         bonding_state = result;
         if(result == BT_ERROR_NONE)
         {
-            ALOGI("[%s] Callback: Services of chat_service are found.", __FUNCTION__);
+            ALOGI("[%s] Callback: Services of mindstorm are found.", __FUNCTION__);
             ALOGI("[%s] Callback: The number of service - %d.", __FUNCTION__, sdp_info->service_count);
 
             int i = 0;
@@ -360,7 +359,7 @@ int rkf_initialize_bluetooth(const char *device_name) {
 		}
 		else
 		{
-			ALOGI("[%s] chat_server is found in bonded device list.", __FUNCTION__);
+			ALOGI("[%s] mindstorm is found in bonded device list.", __FUNCTION__);
 		}
 	}
 	else
@@ -514,6 +513,13 @@ int mindstorm_sonar_read() {
 	rkf_send_data(data3, 5);
 }
 
+int mindstorm_play_kakao() {
+	char data[25] = {0x17, 0x00, 0x80, 0x02, 0x00, 0x30, 0x6B, 0x61, 0x2E, 0x72, 0x73, 0x6F,
+					0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+	rkf_send_data(data, 25);
+}
+
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 
 	DBusError error = {0};
@@ -574,6 +580,16 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 			DBUS_TYPE_INVALID);	
 
 		mindstorm_sonar_read();
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","PlayKakao")) {
+		ALOGD("Message play kakao received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_play_kakao();
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
