@@ -176,9 +176,21 @@ void bt_socket_data_received_impl(bt_socket_received_data_s *data, void *user_da
 			if (message[3] == 0x0E) {
 				ALOGI("Read LSGETSTATUS : %x", message[5]);
 				gSonarReadBytes = message[5];
+				if (gSonarReadBytes >= 1) {
+					char data4[5] = { 0x03, 0x00, 0x00, 0x10, 0x03/*port*/};
+					rkf_send_data(data4, 5);
+				}
 			}
 			else if (message[3] == 0x10) {
-				ALOGI("Read Data : %d", (int)message[5]);
+				FILE* fp = fopen("/usr/share/nodejs/ehf_sonar.tail", "a+");
+				ALOGI("Read Bytes : %d", (int)message[5]);
+				ALOGI("Read Data1 : %d", (int)message[6]);
+				if (fp) {				
+					fprintf(fp, "%d\n", (int)message[6]);
+					fclose(fp);
+				}
+				else
+					ALOGI("Can not write /usr/share/nodejs/ehf_sonar.tail");
 			} 
         }
         else
@@ -564,29 +576,19 @@ int mindstorm_sonar_set(int port) {
 	rkf_send_data(data, 7);
 }
 
-int mindstorm_sonar_get(int port) {
+int mindstorm_sonar_read(int port) {
 	char data1[10] = { 0x08, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x03, 0x00, 0x02, 0x41, 0x02 };
 	data1[4] = (char)port;
 	rkf_send_data(data1, 10);
 
-	gSonarReadBytes = 0;
-	do {
-		char data2[9] = { 0x07, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x02, 0x01, 0x02, 0x42};
-		data2[4] = (char)port;
-		rkf_send_data(data2, 9);
+	char data2[9] = { 0x07, 0x00, 0x00, 0x0F, 0x03/*port*/, 0x02, 0x01, 0x02, 0x42};
+	data2[4] = (char)port;
+	rkf_send_data(data2, 9);
 			
-		char data3[5] = { 0x03, 0x00, 0x00, 0x0E, 0x03/*port*/};
-		data3[4] = (char)port;
-		rkf_send_data(data3, 5);
-	
-	} while (gSonarReadBytes < 1);
-
-	char data4[5] = { 0x03, 0x00, 0x00, 0x10, 0x03/*port*/};
-	data4[4] = (char)port;
-	rkf_send_data(data4, 5);
+	char data3[5] = { 0x03, 0x00, 0x00, 0x0E, 0x03/*port*/};
+	data3[4] = (char)port;
+	rkf_send_data(data3, 5);
 }
-
-
 
 static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *message, void *user_data) {
 
@@ -633,13 +635,25 @@ static DBusHandlerResult dbus_filter (DBusConnection *connection, DBusMessage *m
 
 	if (dbus_message_is_signal(message,"User.Mindstorm.API","SonarSet")) {
 		int port;	
-		ALOGD("Message color received\n");
+		ALOGD("Message setting sonar received\n");
 			
 		dbus_message_get_args(message, &error,
 			DBUS_TYPE_INT32, &port,
 			DBUS_TYPE_INVALID);	
 
 		mindstorm_sonar_set(port);
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
+	if (dbus_message_is_signal(message,"User.Mindstorm.API","SonarRead")) {
+		int port;	
+		ALOGD("Message read sonar received\n");
+			
+		dbus_message_get_args(message, &error,
+			DBUS_TYPE_INT32, &port,
+			DBUS_TYPE_INVALID);	
+
+		mindstorm_sonar_read(port);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
