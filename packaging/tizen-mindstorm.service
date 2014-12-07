@@ -1,5 +1,5 @@
 [Unit]
-Description=Start the remote key framework
+Description=Start the tizen mindstorm
 After=load-virtual-homekey.service bluetooth.service
 
 [Service]
